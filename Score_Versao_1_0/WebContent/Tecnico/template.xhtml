@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:f="http://java.sun.com/jsf/core"
+xmlns:h="http://java.sun.com/jsf/html"
+xmlns:p="http://primefaces.org/ui"
+xmlns:ui="http://java.sun.com/jsf/facelets">
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+	<title>
+		<h:outputText value="#{msg['aplicacao.titulo']}"/>
+	</title>
+</h:head>
+
+<h:body>
+<f:view locale="#{idiomaController.correnteLocale}">
+<h:form>
+
+	<div id="pagina">	
+		<div id="cabecalho" align="center">
+			<ui:insert name="cabecalho">
+				<h:panelGrid columns="2" cellpadding="2">
+					<p:graphicImage library="imagens" name="scoreLogoNovoPequeno.jpg" />
+				</h:panelGrid>
+			</ui:insert>
+		</div>
+		
+		<div id="menu">
+			<ui:insert name="Menu">
+				<p:menubar>	
+				
+					<p:submenu label="Home" >
+						<p:menuitem value="#{msg['link.voltar']}" ajax="false" immediate="true" action="/Tecnico/homeTecnico.xhtml"/>										
+					</p:submenu>
+					
+					<p:submenu label="#{msg['menu.cadastro']}">
+						<p:menuitem value="#{msg['menu.cadastro.usuario']}" ajax="false" immediate="true" action="/Tecnico/cadastro.xhtml"/>	
+						<p:menuitem value="#{msg['menu.cadastro.recurso']}" ajax="false" immediate="true" action="/Tecnico/cadastrarRecurso.xhtml"/>
+						<p:menuitem value="#{msg['menu.cadastro.tecnico']}" ajax="false" immediate="true" action="/Tecnico/cadastroTecnico.xhtml"/>	
+										
+					</p:submenu>
+					
+					<p:submenu label="#{msg['menu.listar']}">
+						<p:menuitem value="#{msg['menu.listar.usuario']}" ajax="false" immediate="true" action="/Tecnico/usuarios.xhtml"/>	
+						<p:menuitem value="#{msg['menu.listar.recurso']}" ajax="false" immediate="true" action="/Tecnico/listarRecurso.xhtml"/>
+						<p:menuitem value="#{msg['menu.listar.reserva']}" ajax="false" immediate="true" action="/Tecnico/listarReservas.xhtml"/>		
+						<p:menuitem value="#{msg['menu.listar.tecnico']}" ajax="false" immediate="true" action="/Tecnico/listagemTecnico.xhtml"/>
+						<p:menuitem value="#{msg['menu.listar.reserva.todas']}" ajax="false" immediate="true" action="/Tecnico/listarTodasReservas.xhtml"/>						
+						<p:menuitem value="#{msg['menu.listar.reserva.aprovada']}" ajax="false" immediate="true" action="/Tecnico/reecursosAprovados.xhtml"/>						
+						
+					</p:submenu>
+					
+					<p:submenu label="#{msg['menu.idioma']}">
+						<p:menuitem value="#{msg['menu.idioma.portugues']}" ajax="false" immediate="true" action="#{idiomaController.setLocalePortugues}"/>
+						<p:menuitem value="#{msg['menu.idioma.ingles']}" ajax="false" immediate="true" action="#{idiomaController.setLocaleIngles}"/>
+						<p:menuitem value="#{msg['menu.idioma.espanhol']}" ajax="false" immediate="true" action="#{idiomaController.setLocaleEspanhol}"/>
+					</p:submenu>
+					
+					<p:submenu label="#{msg['menu.logout']}">
+						<p:menuitem value="#{msg['menu.sair']}" ajax="false" immediate="true" action="#{loginController.logout}" />
+					</p:submenu>
+				</p:menubar>
+			</ui:insert>
+		</div>
+		
+		<div id="conteudo" align="center">
+		  	<ui:insert name="conteudo" >
+		   	</ui:insert>
+	    </div>
+	    
+	    <div id="rodape">
+		  	<ui:insert name="rodape" >
+		   	</ui:insert>
+	    </div>
+	</div>
+</h:form>
+</f:view>
+</h:body>
+</html>
