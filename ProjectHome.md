@@ -1,0 +1,1 @@
+Este projeto consiste em um sistema de controle de recursos de infraestrutura  e alocação destes.
