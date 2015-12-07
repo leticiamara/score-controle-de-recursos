@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:f="http://java.sun.com/jsf/core"
+xmlns:h="http://java.sun.com/jsf/html"
+xmlns:p="http://primefaces.org/ui"
+xmlns:ui="http://java.sun.com/jsf/facelets">
+<ui:composition template="/Tecnico/template.xhtml">
+	<ui:define name="conteudo">
+		<p:messages/>
+		<h:panelGrid columns="2" cellpadding="10">
+			<p:outputLabel value="#{msg['recurso.nome']} *"/>
+			<p:inputText value="#{recursoController.recurso.nome}" required="true" label="#{msg['recurso.nome']}" requiredMessage="#{msg['mensagem.nome']}">
+			</p:inputText>
+		
+			<p:outputLabel value="#{msg['recurso.numero']} *"/>
+			<p:inputText value="#{recursoController.recurso.numeroRecurso}" required="true" label="#{msg['recurso.numero']}" requiredMessage="#{msg['mensagem.numeroRecurso']}">
+
+			</p:inputText>
+		
+			<p:outputLabel value="#{msg['recurso.quantidade']} *"/>
+			<p:inputText value="#{recursoController.recurso.quantidade}" required="true" label="#{msg['recurso.quantidade']}" requiredMessage="#{msg['mensagem.quantidade']}"/>
+			
+			<p:commandButton ajax="false" type="submit" value="#{msg['botao.cadastrar']}" action="#{recursoController.adicionar}"/>
+			<p:commandButton ajax="false" type="submit" value="#{msg['botao.voltar']}" action="/Tecnico/homeTecnico.xhtml" immediate="true"/>
+		</h:panelGrid>
+	</ui:define>
+</ui:composition>
+</html>
