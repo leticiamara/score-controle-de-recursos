@@ -165,6 +165,20 @@
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
 			</plugin>
+			<plugin>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<version>2.2</version>
+				<executions>
+					<execution>
+						<id>tomcat-deploy</id>
+						<goals>
+							<goal>run-war</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 </project>
