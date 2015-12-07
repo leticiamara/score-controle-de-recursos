@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:f="http://java.sun.com/jsf/core"
+xmlns:h="http://java.sun.com/jsf/html"
+xmlns:p="http://primefaces.org/ui"
+xmlns:ui="http://java.sun.com/jsf/facelets">
+<ui:composition template="templatePaginaLogin.xhtml">
+	<ui:define name="conteudo">
+	<p:messages/>
+	<h:panelGrid columns="2" cellpadding="50" align="left">
+	<p:graphicImage library="imagens" name="universidade.png" />
+	
+	<h:panelGrid columns="2" cellpadding="10">
+	
+	        <p:outputLabel value="#{msg['usuario.login']} *"/>
+            <p:inputText value="#{loginController.login}"  required="true" label="#{msg['usuario.login']}" requiredMessage="#{msg['mensagem.erro.login']}"/>  
+		
+		    <p:outputLabel value="#{msg['usuario.senha']} *"/> 
+            <p:password value="#{loginController.senha}" required="true" label="#{msg['usuario.senha']}" requiredMessage="#{msg['mensagem.erro.senha']}"/>
+                               
+             
+        <h:outputText value="#{msg['usuario.tipo']}" />  
+        <p:selectOneMenu value="#{loginController.tipo}">  
+            <f:selectItem itemLabel="Selecione" itemValue="" />  
+            <f:selectItem itemLabel="Usuario" itemValue="usuario" />  
+            <f:selectItem itemLabel="Tecnico" itemValue="tecnico" />   
+        </p:selectOneMenu>            
+          <br/><p:commandButton ajax="false" type="submit" value="#{msg['botao.entrar']}" action="#{loginController.login}"/>      
+	</h:panelGrid>
+	
+	</h:panelGrid>
+		
+
+</ui:define>
+</ui:composition>
+</html>
