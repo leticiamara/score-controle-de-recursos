@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:f="http://java.sun.com/jsf/core"
+xmlns:h="http://java.sun.com/jsf/html"
+xmlns:p="http://primefaces.org/ui"
+xmlns:ui="http://java.sun.com/jsf/facelets">
+	<ui:composition template="/Usuario/templateUsuario.xhtml">
+	<ui:define name="conteudo">
+	<h:panelGrid columns="2" cellpadding="10">
+		<p:dataTable value="#{recursoController.listaDeRecursos}" var="recurso" >
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="Recursos" />	
+				</f:facet>
+				<h:commandLink action="/Usuario/reservar.xhtml">
+					<h:outputText value="#{recurso.nome}" />		
+					<f:setPropertyActionListener value="#{recurso}" target="#{controladorReserva.reserva.recurso}"/>	
+				</h:commandLink>
+			</p:column>
+			
+			<p:column>
+				<f:facet name="header"><h:outputText value="Numero do Recurso"/></f:facet>
+				<h:outputText value="#{recurso.numeroRecurso}"/>
+			</p:column>
+			
+			<p:column>
+				<f:facet name="header"><h:outputText value="Quantidade"/></f:facet>
+				<h:outputText value="#{recurso.quantidade}"/>
+			</p:column>
+		</p:dataTable>	
+		
+		<p:commandButton ajax="false" immediate="true" value="Pagina Inicial" action="/Usuario/homeUsuario.xhtml"/>
+		</h:panelGrid>
+	</ui:define>
+</ui:composition>
+</html>
