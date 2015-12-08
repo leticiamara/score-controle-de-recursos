@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:f="http://java.sun.com/jsf/core"
+xmlns:h="http://java.sun.com/jsf/html"
+xmlns:p="http://primefaces.org/ui"
+xmlns:ui="http://java.sun.com/jsf/facelets">
+<h:head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+<title>Listar Tecnicos</title>
+</h:head>
+<ui:composition template="/Tecnico/template.xhtml">
+	<ui:define name="conteudo">
+		<p:messages/>
+		<h:panelGrid columns="2" cellpadding="10">
+		<p:dataTable value="#{tecnicoController.tecnicos}" var="tec">
+			<p:column>
+				<f:facet name="header"><h:outputText value="#{msg['tecnico.nome']}"/></f:facet>
+				<h:commandLink action="/Tecnico/atualizarTecnico.xhtml">
+					<h:outputText value="#{tec.nome}"/>
+					<f:setPropertyActionListener value="#{tec}" target="#{tecnicoController.tecnico}"/>
+				</h:commandLink>			
+			</p:column>
+			
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{msg['tecnico.funcao']}"/>
+				</f:facet>
+				
+				<h:outputText value="#{tec.funcao}"/>
+			</p:column>
+			
+			<p:column>
+				<f:facet name="header"><h:outputText value="#{msg['tecnico.email']}"/></f:facet>
+				<h:outputText value="#{tec.email}"/>
+			</p:column>
+			
+			<p:column>
+				<f:facet name="header"><h:outputText value="#{msg['tecnico.codigoAdministrador']}"/></f:facet>
+				<h:outputText value="#{tec.codigoAdministrador}"/>
+			</p:column>
+			
+			<p:column>
+				<f:facet name="header"><h:outputText value="#{msg['menu.deletar']}"/></f:facet>
+				<h:commandLink action="#{tecnicoController.deletar}">
+					<h:graphicImage library="imagens" name="delete.gif"/>
+					<f:setPropertyActionListener value="#{tec}" target="#{tecnicoController.tecnico}"/>
+				</h:commandLink>		
+			</p:column>
+		</p:dataTable>
+		</h:panelGrid>
+		<p:commandButton immediate="true" ajax="false" value="#{msg['botao.voltar']}" action="/Tecnico/homeTecnico.xhtml"/>
+	</ui:define>
+</ui:composition>
+</html>
