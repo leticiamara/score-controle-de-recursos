@@ -184,7 +184,7 @@
 					<execution>
 						<id>tomcat-deploy</id>
 						<goals>
-							<goal>run-war</goal>
+							<goal>deploy</goal>
 						</goals>
 						<phase>package</phase>
 					</execution>
