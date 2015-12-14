@@ -221,7 +221,15 @@
 				<artifactId>emma-maven-plugin</artifactId>
 				<version>1.0-alpha-3</version>
 				<inherited>true</inherited>
-		    </plugin>			
+				<executions>
+				  <execution>
+					<phase>process-classes</phase>
+					<goals>
+						<goal>instrument</goal>
+					</goals>
+				  </execution>
+				</executions>
+			</plugin>			
 			<plugin>
 				<artifactId>tomcat7-maven-plugin</artifactId>
 				<groupId>org.apache.tomcat.maven</groupId>
