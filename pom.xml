@@ -172,6 +172,7 @@
 		</dependency>
 	</dependencies>
 
+<!-- build -->
 	<build>
 		<testSourceDirectory>src/br/ufc/quixada/es/testes</testSourceDirectory>
 		<sourceDirectory>src</sourceDirectory>
