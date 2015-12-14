@@ -152,6 +152,12 @@
 			<artifactId>jsr305</artifactId>
 			<version>3.0.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>emma-maven-plugin</artifactId>
+			<version>1.0-alpha-3</version>
+		</dependency>
+		
 		
 				
 		
@@ -166,6 +172,7 @@
 		</dependency>
 	</dependencies>
 
+<!-- build -->
 	<build>
 		<testSourceDirectory>src/br/ufc/quixada/es/testes</testSourceDirectory>
 		<sourceDirectory>src</sourceDirectory>
@@ -186,6 +193,21 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+		    <plugin>
+		        <groupId>org.codehaus.mojo</groupId>
+		        <artifactId>findbugs-maven-plugin</artifactId>
+		        <version>3.0.3</version>
+		    </plugin>
+		    <plugin>
+		    	<groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-pmd-plugin</artifactId>
+		        <version>3.5</version>
+		    </plugin>
+		    <plugin>
+		          <groupId>org.apache.maven.plugins</groupId>
+		          <artifactId>maven-checkstyle-plugin</artifactId>
+		          <version>2.17</version>
+		    </plugin>
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<version>2.6</version>
@@ -195,18 +217,15 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>emma-maven-plugin</artifactId>
+				<version>1.0-alpha-3</version>
+				<inherited>true</inherited>
+		    </plugin>			
+			<plugin>
 				<artifactId>tomcat7-maven-plugin</artifactId>
 				<groupId>org.apache.tomcat.maven</groupId>
 				<version>2.2</version>
-				<executions>
-					<execution>
-						<id>tomcat-deploy</id>
-						<goals>
-							<goal>deploy</goal>
-						</goals>
-						<phase>package</phase>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

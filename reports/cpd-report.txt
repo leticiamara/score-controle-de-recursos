@@ -1,0 +1,2527 @@
+Found a 206 line (825 tokens) duplication in the following files: 
+Starting at line 17 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 17 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+
+public class ReservaDAO {
+	
+	public ArrayList<Reserva> listarTodas(){
+		
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Reserva.class);
+		ArrayList<Reserva> reservas =  (ArrayList<Reserva>) criteria.list();
+		
+		trasaction.commit();
+		sessao.close();
+		
+		return reservas;
+	}
+	
+	public ArrayList<Reserva> listarReservasAprovadas(){
+	
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction transaction = sessao.beginTransaction();
+		
+		Criteria criteria = sessao.createCriteria(Reserva.class);
+		criteria.add(Restrictions.eq("status", "Aprovada"));
+		
+		ArrayList<Reserva> reservas = (ArrayList<Reserva>) criteria.list();
+		
+		transaction.commit();
+		sessao.close();
+		
+		return reservas;
+	}
+	
+	
+	
+	public ArrayList<Reserva> listarReservasNaoAprovadas() {
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction transaction = sessao.beginTransaction();
+		
+		Criteria criteria = sessao.createCriteria(Reserva.class);
+		criteria.add(Restrictions.eq("status", "Nao Aprovada"));
+		
+		ArrayList<Reserva> reservas = (ArrayList<Reserva>) criteria.list();
+		
+		transaction.commit();
+		sessao.close();
+		
+		return reservas;
+		
+	}
+	
+	public boolean deletar(Reserva reserva){
+		
+		boolean deletar = false;
+		
+		Session sessao = CriarTabelas.prepararSessao();
+		
+		try{
+			Transaction trasaction = sessao.beginTransaction();
+			Reserva reservaCarregada = (Reserva) sessao.load(Reserva.class, reserva.getId());
+			
+			sessao.delete(reservaCarregada);
+			
+			trasaction.commit();
+			deletar = true;
+		}
+		catch (HibernateException e) {
+			// TODO: handle exception
+		}
+		finally{
+			sessao.close();
+			return deletar;
+		}
+		
+	}
+	
+	public boolean cadastrar(Reserva reserva){
+		
+				Session sessao = CriarTabelas.prepararSessao();
+				boolean cadastro = false;
+				try{
+					Transaction trasaction = sessao.beginTransaction();
+					reserva.setStatus("Nao Aprovada");
+					sessao.save(reserva);
+					
+					trasaction.commit();
+					cadastro = true;
+					
+				}catch (HibernateException e) {
+					System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+							+ e.toString());
+				}
+				finally{
+				sessao.close();
+				return cadastro;
+				}
+	}
+	
+	public boolean atualizar(Reserva novaReserva){
+		boolean atualizar = false;
+		Session sessao = CriarTabelas.prepararSessao();
+		
+		try{
+		
+		Transaction trasaction = sessao.beginTransaction();
+		
+		Reserva reservaCarregada = (Reserva) sessao.load(Reserva.class, novaReserva.getId());
+				
+		reservaCarregada = novaReserva;
+		
+		sessao.update(reservaCarregada);
+		atualizar = true;
+		
+		trasaction.commit();
+		}catch (HibernateException e) {
+			System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+				+ e.toString());
+		}
+			finally{
+					sessao.close();
+						return atualizar;
+			}
+	}
+	
+	public Reserva buscarReservaPor(Long id){
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Reserva.class);
+		criteria.add(Restrictions.eq("id", id));
+		
+		Reserva reserva =  (Reserva) criteria.uniqueResult();
+		
+		trasaction.commit();
+		sessao.close();
+		
+		return reserva;
+	}
+	
+	public List<Reserva> buscarReservaPorUsuario(Usuario u){
+		Session sessao = CriarTabelas.prepararSessao();
+		
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Reserva.class);
+		criteria.add(Restrictions.eq("usuario", u));
+//		//consulta.createCriteria("id_usuario").add(Expression.eq("id", 1));
+//		
+//		Criteria c = sessao.createCriteria("id_usuario");
+//		c.add(Expression.e);
+//		
+//		criteria.createCriteria("id_usuario").add(Expression.eq("id", idUsuario));
+		
+		List<Reserva> reservas = criteria.list();
+		
+		trasaction.commit();
+		sessao.close();
+		
+		return reservas;
+	}
+
+	//Criei
+	public boolean aprovar(Reserva reserva, Tecnico tecnico) {
+		
+		boolean aprovar = false;
+		Session sessao = CriarTabelas.prepararSessao();
+		
+		try{
+		Transaction trasaction = sessao.beginTransaction();
+		
+		Reserva reservaCarregada = (Reserva) sessao.load(Reserva.class, reserva.getId());
+				
+		reservaCarregada = reserva;
+		reservaCarregada.setStatus("Aprovada");
+		reservaCarregada.setTecnico(tecnico);
+		
+		sessao.update(reservaCarregada);
+		aprovar = true;
+		
+		trasaction.commit();
+		}catch (HibernateException e) {
+			
+		}
+		finally{
+		sessao.close();
+		return aprovar;
+		}
+		
+	}
+
+	public void associarUsuarioAReserva(Long idReserva, Usuario usuario) {
+		
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+		
+		Reserva reservaCarregada = (Reserva) sessao.load(Reserva.class, idReserva);
+				
+		reservaCarregada.setUsuario(usuario);
+		
+		sessao.update(reservaCarregada);
+		
+		trasaction.commit();
+		sessao.close();
+		
+	}
+	
+}
+=====================================================================
+Found a 165 line (768 tokens) duplication in the following files: 
+Starting at line 20 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/ControladorDeReservas.java
+Starting at line 20 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/ControladorDeReservas.java
+
+@ManagedBean(name="controladorReserva")
+@SessionScoped
+public class ControladorDeReservas {
+	
+	private Reserva reserva = new Reserva();
+	private ReservaDAO dao = new ReservaDAO();
+	private RecursoDAO daorec = new RecursoDAO();
+	private ArrayList<Reserva> reservas = new ArrayList<Reserva>();
+	private List<Reserva> reservasUsuario = new ArrayList<Reserva>();
+	private ArrayList<Reserva> todasReservas = new ArrayList<Reserva>();
+	private ArrayList<Reserva> todasReservasAprovadas = new ArrayList<Reserva>();
+	
+	public String reservar(){
+		
+		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();  
+		HttpSession session = (HttpSession) externalContext.getSession(true);  
+		LoginController loginController = (LoginController)session.getAttribute("loginController"); 
+		System.out.println(loginController.getUsuario().getNome());
+		
+		ExternalContext externalContext2 = FacesContext.getCurrentInstance().getExternalContext(); 
+		HttpSession session2 = (HttpSession) externalContext2.getSession(true);  
+		ControllerRecursos controllerRecursos = (ControllerRecursos) session2.getAttribute("recursoController"); 
+		
+		reserva.setUsuario(loginController.getUsuario());
+		
+		System.out.println(loginController.getUsuario().getNome());
+		
+		
+		if(dao.cadastrar(reserva)){
+			addMessage("Dados Salvos");
+		}
+		else{
+			addMessage("Dados nao Salvos");
+		}
+		return "/Usuario/listarReservasUsuario.xhtml";
+	}
+	
+	public String deletarReserva(){
+		if(dao.deletar(reserva)){
+			addMessage("Reserva Deletada");
+		}
+		else{
+			addMessage("Reserva nao deletada");
+		}
+		return "/Usuario/listarReservasUsuario.xhtml";
+	}
+	
+	public String editar() {
+			if(dao.atualizar(reserva)){
+				addMessage("Reserva Editada");
+			}
+			else{
+				addMessage("Reserva Nao Editada");
+			}
+		return "/Usuario/listarReservasUsuario.xhtml";
+	}
+	
+	public ArrayList<Reserva> listarTodasReservas(){
+		return reservas;
+	}
+
+	public Reserva getReserva() {
+		return reserva;
+	}
+
+	public void setReserva(Reserva reserva) {
+		this.reserva = reserva;
+	}
+
+	public ArrayList<Reserva> getReservas() {
+		reservas = dao.listarReservasNaoAprovadas();
+		return reservas;
+	}
+
+	public void setReservas(ArrayList<Reserva> reservas) {
+		this.reservas = reservas;
+	}
+	
+	
+	public ArrayList<Reserva> getTodasReservasAprovadas() {
+		return todasReservasAprovadas = dao.listarReservasAprovadas();
+	}
+
+	public void setTodasReservasAprovadas(ArrayList<Reserva> todasReservasAprovadas) {
+		this.todasReservasAprovadas = todasReservasAprovadas;
+	}
+
+	public void aprovarReserva(){ 
+		
+		//Pegar Sessao do Tecnico
+		ExternalContext externalContext2 = FacesContext.getCurrentInstance().getExternalContext(); 
+		HttpSession session = (HttpSession) externalContext2.getSession(true); 
+		LoginController loginController = (LoginController) session.getAttribute("loginController");
+		
+		if(dao.aprovar(reserva,loginController.getTecnico())){
+			
+			EnviarEmail email = new EnviarEmail();
+			
+			email.enviar(reserva.getUsuario().getEmail(), "Reserva de Recurso de Aprovada", "A sua reserva foi aprovada");
+			
+			Recurso rec = reserva.getRecurso();
+			int qntd = rec.getQuantidade();
+			rec.setQuantidade(qntd-1);
+			
+			daorec.update(rec);
+			
+			addMessage("Reserva Aprovada");
+		}
+		else{
+			addMessage("Reserva Nao Aprovada");
+		}
+	}
+	
+	public void addMessage(String summary) {  
+        FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, summary,  null);  
+        FacesContext.getCurrentInstance().addMessage(null, message);  
+    }
+
+	public List<Reserva> getReservasUsuario() {
+		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();  
+		HttpSession session = (HttpSession) externalContext.getSession(true);  
+		LoginController loginController = (LoginController)session.getAttribute("loginController"); 
+		
+		return reservasUsuario =  dao.buscarReservaPorUsuario(loginController.getUsuario());
+	}
+
+	public void setReservasUsuario(List<Reserva> reservasUsuario) {
+		this.reservasUsuario = reservasUsuario;
+	}
+
+	public ArrayList<Reserva> getTodasReservas() {
+		todasReservas = dao.listarTodas();
+		return todasReservas;
+	}
+
+	public void setTodasReservas(ArrayList<Reserva> todasReservas) {
+		this.todasReservas = todasReservas;
+	}
+	
+	public void recusarReserva(){  
+		if(dao.deletar(reserva)){
+			
+			addMessage("Reserva Recusada");
+		}
+		else{
+			addMessage("Reserva Nao Recusada");
+		}
+	}
+	
+	public void devolverReserva(){
+		if(dao.deletar(reserva)){
+			Recurso rec = reserva.getRecurso();
+			int qntd = rec.getQuantidade();
+			rec.setQuantidade(qntd+1);
+			
+			daorec.update(rec);
+			
+			addMessage("Recurso Devolvido");
+		}
+		else{
+			addMessage("Recurso Nao pode ser Devolvido");
+		}
+	}
+
+}
+=====================================================================
+Found a 138 line (552 tokens) duplication in the following files: 
+Starting at line 14 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 14 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+
+public class UsuarioDAO {
+
+	@SuppressWarnings("finally")
+	public boolean insert(Usuario usuario){
+	
+		Session session = CriarTabelas.prepararSessao();
+		boolean cadastro = false;
+		
+		try{
+			Transaction trasaction = session.beginTransaction();
+			session.save(usuario);
+			trasaction.commit();
+			cadastro = true;
+		}
+		catch(HibernateException e){
+			System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+		}
+		finally{
+			session.close();
+			return cadastro;
+		}
+	}
+	
+	@SuppressWarnings("finally")
+	public boolean delete(Usuario usuario){
+		
+		Session session = CriarTabelas.prepararSessao();
+		boolean excluir = false;
+		
+		try{
+			Transaction trasaction = session.beginTransaction();
+			Usuario usuarioCarregado = (Usuario) session.load(Usuario.class, usuario.getId());
+			session.delete(usuarioCarregado);
+			
+			trasaction.commit();
+			excluir = true;
+		}
+		catch(HibernateException e){
+			System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+		}
+		finally{
+			session.close();
+			return excluir;
+		}
+	}
+	
+	@SuppressWarnings("finally")
+	public Usuario selectlogin(String login,String senha){
+		
+		Session session = CriarTabelas.prepararSessao();
+		Usuario usuario = new Usuario();
+	    try{
+//	    	Transaction trasaction = session.beginTransaction();
+//	    	Criteria criteria = session.createCriteria(Usuario.class);
+//			criteria.add(Restrictions.eq("login", login));
+//			criteria.add(Restrictions.eq("login", login));
+//			usuario = (Usuario) criteria.uniqueResult();
+//			trasaction.commit();
+	    	String hql = "from Usuario usuario where usuario.login like ? and usuario.senha like ?";
+	    	Query query = session.createQuery(hql).setString(0, login).setString(1, senha);
+	    	usuario = (Usuario) query.uniqueResult();
+	    }
+	    catch(HibernateException e){
+	    	System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+	    }
+	    finally{
+	    	session.close();
+	    	return usuario;
+	    }
+	}
+	
+	@SuppressWarnings("finally")
+	public List<Usuario> selectAll(){
+		
+		Session session = CriarTabelas.prepararSessao();
+		List<Usuario> usuarios = new ArrayList<Usuario>();
+	    try{
+	    	Transaction trasaction = session.beginTransaction();
+	    	@SuppressWarnings("unchecked")
+			ArrayList<Usuario> list = (ArrayList<Usuario>)session.createCriteria(Usuario.class).list();
+			usuarios = list;
+			trasaction.commit();
+	    }
+	    catch(HibernateException e){
+	    	System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+	    }
+	    finally{
+	    	session.close();
+	    	return usuarios;
+	    }
+	}
+	
+//	public List<Reserva> listarTodasReservasUsuario(Usuario usuario){
+//		
+////		Session sessao = CriarTabelas.prepararSessao();
+////		Transaction trasaction = sessao.beginTransaction();
+////			
+////		Criteria criteria = sessao.createCriteria(Usuario.class);
+////		criteria.add(Restrictions.eq("id", id));
+////		
+////		List<Reserva> reservas =  (List<Reserva>) criteria.list();
+////		
+////		trasaction.commit();
+////		sessao.close();
+////		
+////		return reservas;
+//	}
+	
+	@SuppressWarnings("finally")
+	public boolean update(Usuario usuario){
+		Session session = CriarTabelas.prepararSessao();
+		boolean atualizar = false;
+		
+		try{
+			Transaction trasaction = session.beginTransaction();
+			
+			Usuario novoUsuarioCarregado = (Usuario) session.load(Usuario.class, usuario.getId());
+			novoUsuarioCarregado = usuario;
+					
+			session.update(novoUsuarioCarregado);
+			trasaction.commit();
+			
+			atualizar = true;
+		}
+		catch(HibernateException e){
+	    	System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+	    }
+		finally{
+			session.close();
+			return atualizar;
+		}
+	}
+}
+=====================================================================
+Found a 135 line (546 tokens) duplication in the following files: 
+Starting at line 15 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 15 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+
+public class RecursoDAO {
+	
+	public boolean insert(Recurso recurso){
+		boolean inserir = false;
+		Session sessao = CriarTabelas.prepararSessao();
+		
+		try{
+			Transaction trasaction = sessao.beginTransaction();
+			sessao.save(recurso);
+			trasaction.commit();
+			inserir = true;
+			
+		} catch (HibernateException e) {
+			System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+		}
+		finally{
+			sessao.close();
+			return inserir;
+		}
+	}
+
+	public boolean delete(Recurso recurso) {
+		
+		boolean deletar = false;
+		Session sessao = CriarTabelas.prepararSessao();
+		
+		try{
+			Transaction trasaction = sessao.beginTransaction();
+			
+			Recurso recursoCarregado = (Recurso) sessao.load(Recurso.class, recurso.getIdRecurso());
+			
+			sessao.delete(recursoCarregado);
+			
+			trasaction.commit();
+			deletar = true;
+		}catch (HibernateException e) {
+			
+		}
+		finally{
+
+			sessao.close();
+			return deletar;
+		}
+		
+	}
+
+	public boolean update(Recurso novoRecurso) {
+		
+		boolean atualizar = false;
+		Session sessao = CriarTabelas.prepararSessao();
+		
+		try{Transaction trasaction = sessao.beginTransaction();
+		
+		Recurso novoRecursoCarregado = (Recurso) sessao.load(Recurso.class, novoRecurso.getIdRecurso());
+				
+		novoRecursoCarregado = novoRecurso;
+		
+		sessao.update(novoRecursoCarregado);
+		
+		trasaction.commit();
+		atualizar = true;
+		
+		}catch (HibernateException e) {
+			
+		}
+		finally{
+			sessao.close();
+			return atualizar;
+		}
+		
+	}
+
+	public Recurso selectUnicoRecurso(int numeroRecurso){
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Recurso.class);
+		criteria.add(Restrictions.eq("numeroRecurso", numeroRecurso));
+		
+		Recurso recurso = (Recurso) criteria.uniqueResult();
+
+		trasaction.commit();
+		
+		sessao.close();
+		
+		return recurso;
+	}
+	
+	public List<Recurso> select() {
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Recurso.class);
+		ArrayList<Recurso> recursos = (ArrayList<Recurso>) criteria.list();
+
+		trasaction.commit();
+		
+		sessao.close();
+		
+		return recursos;
+	}
+	
+	public List<Recurso> selectDisponibilidade(){
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+		
+		Criteria criteria = sessao.createCriteria(Recurso.class);
+		criteria.add(Restrictions.eq("disponibilidade", false));
+		
+		ArrayList<Recurso> recursos = (ArrayList<Recurso>) criteria.list();
+		
+		trasaction.commit();
+		
+		sessao.close();
+		
+		return recursos; 
+	}
+	
+	public void modificarDisponibilidade(Recurso recurso){
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+		
+		recurso.setDisponibilidade(false);
+		Recurso novoRecursoCarregado = (Recurso) sessao.load(Recurso.class, recurso.getIdRecurso());
+				
+		novoRecursoCarregado = recurso;
+		
+		sessao.update(novoRecursoCarregado);
+		
+		trasaction.commit();
+		sessao.close();
+		
+	}	
+}
+=====================================================================
+Found a 139 line (508 tokens) duplication in the following files: 
+Starting at line 15 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 15 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+
+public class TecnicoDAO 
+{
+public  boolean insert(Tecnico tecnico) {
+		
+		//Cria uma sessao
+		boolean inserir = false;
+		Session sessao = CriarTabelas.prepararSessao();
+		try{
+			//Abre uma transacao
+			Transaction trasaction = sessao.beginTransaction();
+			
+			//Salva o usuario no banco
+			sessao.save(tecnico);
+			
+			//Fecha a transacao
+			trasaction.commit();
+			inserir = true;
+			
+		}catch (HibernateException e) {
+			System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+		}
+		//Fecha a sessao
+		finally{
+		sessao.close();
+		return inserir;
+		}
+	}
+	
+	public boolean delete(Tecnico tecnico) {
+		
+		boolean deletar = false;
+		Session sessao = CriarTabelas.prepararSessao();
+		
+		try{
+			Transaction trasaction = sessao.beginTransaction();
+			
+			Tecnico tecnicoCarregado = (Tecnico) sessao.load(Tecnico.class, tecnico.getId());
+			
+			sessao.delete(tecnicoCarregado);
+			
+			trasaction.commit();
+			deletar = true;
+		}catch (HibernateException e) {
+			
+		}
+		finally{
+			sessao.close();
+			return deletar;
+		}
+		
+		
+		
+	}
+	
+	public  Tecnico select(String codigoAdministrador) {
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Tecnico.class);
+		criteria.add(Restrictions.eq("codigoAdministrador", codigoAdministrador));
+		
+		Tecnico tecnico = (Tecnico) criteria.uniqueResult();
+		//Tratar erro de usuario
+		trasaction.commit();
+		
+		sessao.close();
+		
+		return tecnico;
+	}
+	
+	public List<Tecnico> selectAll()
+	{
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Tecnico.class);
+		
+		List<Tecnico> tecnico = (List<Tecnico>) criteria.list();
+		//Tratar erro de usuario
+		trasaction.commit();
+		
+		sessao.close();
+		
+		return tecnico;
+	}
+	@SuppressWarnings("finally")
+	public Tecnico selectlogin(String login,String senha){
+		
+		Session session = CriarTabelas.prepararSessao();
+		Tecnico tecnico = new Tecnico();
+	    try{
+//	    	Transaction trasaction = session.beginTransaction();
+//	    	Criteria criteria = session.createCriteria(Usuario.class);
+//			criteria.add(Restrictions.eq("login", login));
+//			criteria.add(Restrictions.eq("login", login));
+//			usuario = (Usuario) criteria.uniqueResult();
+//			trasaction.commit();
+	    	String hql = "from Tecnico tecnico where tecnico.login like ? and tecnico.senha like ?";
+	    	Query query = session.createQuery(hql).setString(0, login).setString(1, senha);
+	    	tecnico = (Tecnico) query.uniqueResult();
+	    }
+	    catch(HibernateException e){
+	    	System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+	    }
+	    finally{
+	    	session.close();
+	    	return tecnico;
+	    }
+	}
+	
+	public boolean update(Tecnico novoTecnico) {
+		
+		boolean atualizar = false;
+		Session sessao = CriarTabelas.prepararSessao();
+		
+		try{
+			Transaction trasaction = sessao.beginTransaction();
+			
+			Tecnico novoTecnicoCarregado = (Tecnico) sessao.load(Tecnico.class, novoTecnico.getId());
+					
+			novoTecnicoCarregado = novoTecnico;
+			
+			sessao.update(novoTecnicoCarregado);
+			
+			trasaction.commit();
+			atualizar = true;
+		}catch (HibernateException e) {
+			// TODO: handle exception
+		}
+		finally{
+			sessao.close();
+			return atualizar;
+		}
+		
+	}
+
+}
+=====================================================================
+Found a 134 line (441 tokens) duplication in the following files: 
+Starting at line 20 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/LoginController.java
+Starting at line 20 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/LoginController.java
+
+@ManagedBean(name="loginController")
+@SessionScoped
+public class LoginController {
+
+	private String login;
+	private String senha;
+	FacesMessage msg = null; 
+	private UsuarioDAO dao = new UsuarioDAO();
+	private TecnicoDAO daoTecnico = new TecnicoDAO();
+	private Usuario usuario = new Usuario();
+	private Tecnico tecnico = new Tecnico();
+	private String tipo;
+	  
+	
+	public String logout(){
+		HttpSession session = (HttpSession)FacesContext.getCurrentInstance().getExternalContext().getSession(true);
+		session.invalidate();
+		
+		login = "";
+		senha = "";
+		usuario = new Usuario();
+		tecnico = new Tecnico();
+		
+		return "/login.xhtml";
+	}
+	
+	public String login() throws IOException{
+		
+		if(tipo.equals("tecnico")){
+			tecnico = daoTecnico.selectlogin(login, senha);
+			
+			if(tecnico != null){
+				  
+				// usuario = new Usuario();
+				 return "/Tecnico/homeTecnico.xhtml";
+
+			}else{
+				msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Login/Senha Error", "Invalid credentials");
+				FacesContext.getCurrentInstance().addMessage(null, msg); 
+				tecnico = new Tecnico();
+				return "";
+			}
+			
+		}else if(tipo.equals("usuario")){
+			
+			usuario = dao.selectlogin(login, senha);
+			if(usuario != null){
+				  
+				//usuario = new Usuario();
+				 return "/Usuario/homeUsuario.xhtml";
+	
+			}else{
+				msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Login/Senha Error", "Invalid credentials");
+				FacesContext.getCurrentInstance().addMessage(null, msg); 
+				usuario = new Usuario();
+				return "";
+			}
+	}
+		return "";
+	
+}
+
+	public UsuarioDAO getDao() {
+		return dao;
+	}
+
+
+	public void setDao(UsuarioDAO dao) {
+		this.dao = dao;
+	}
+
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+
+	public String getLogin() {
+		return login;
+	}
+
+	public void setLogin(String login) {
+		this.login = login;
+	}
+
+	public String getSenha() {
+		return senha;
+	}
+
+	public void setSenha(String senha) {
+		this.senha = senha;
+	}
+
+
+	public String getTipo() {
+		return tipo;
+	}
+
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
+
+	public FacesMessage getMsg() {
+		return msg;
+	}
+
+	public void setMsg(FacesMessage msg) {
+		this.msg = msg;
+	}
+
+	public TecnicoDAO getDaoTecnico() {
+		return daoTecnico;
+	}
+
+	public void setDaoTecnico(TecnicoDAO daoTecnico) {
+		this.daoTecnico = daoTecnico;
+	}
+
+	public Tecnico getTecnico() {
+		return tecnico;
+	}
+
+	public void setTecnico(Tecnico tecnico) {
+		this.tecnico = tecnico;
+	}
+	
+	
+}
+=====================================================================
+Found a 89 line (333 tokens) duplication in the following files: 
+Starting at line 14 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/email/EnviarEmail.java
+Starting at line 14 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/email/EnviarEmail.java
+
+public class EnviarEmail {
+
+	 private String mailSMTPServer;  
+	 private String mailSMTPServerPort;
+	 
+	
+	 public EnviarEmail(){
+		 mailSMTPServer = "smtp.gmail.com";  
+	     mailSMTPServerPort = "465";
+	 }
+	 
+	 public void enviar(String destino, String assunto, String mensagem) {  
+         
+	        Properties props = new Properties();  
+	  
+	        
+	        props.put("mail.transport.protocol", "smtp"); //protocolo de envio como SMTP  
+	        props.put("mail.smtp.starttls.enable","true");   
+	        props.put("mail.smtp.host", mailSMTPServer); //server SMTP do GMAIL  
+	        props.put("mail.smtp.auth", "true"); //ativa autenticacao  
+	        props.put("mail.smtp.user", "scoreufc@gmail.com"); //usuario ou seja, a conta que esta enviando o email (tem que ser do GMAIL)  
+	        props.put("mail.debug", "true");  
+	        props.put("mail.smtp.port", mailSMTPServerPort); //porta  
+	        props.put("mail.smtp.socketFactory.port", mailSMTPServerPort); //mesma porta para o socket  
+	        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");  
+	        props.put("mail.smtp.socketFactory.fallback", "false");  
+	          
+	        //Cria um autenticador que sera usado a seguir  
+	        Autenticacao aut = null;  
+	        aut = new Autenticacao ("scoreufc@gmail.com","scoreufcweb");  
+	          
+	        //faz a autenticacao  
+	        Session session = Session.getDefaultInstance(props, aut);  
+	       // Session session = Session.getDefaultInstance(props, auth);  
+	        //session.setDebug(true); //Habilita o LOG das ações executadas durante o envio do email  
+	  
+	      
+	        Message msg = new MimeMessage(session);  
+	  
+	        try {  
+	            //setando o destinario  
+	            msg.setRecipient(Message.RecipientType.TO, new InternetAddress(destino));  
+	            //Setando a origem do email  
+	            msg.setFrom(new InternetAddress("scoreufc@gmail.com"));  
+	            //Setando o assunto  
+	            msg.setSubject(assunto);  
+	            //Setando o conteúdo/corpo do email  
+	            msg.setContent(mensagem,"text/plain");  
+	  
+	        } catch (Exception e) {  
+	            System.out.println("Erro ao enviar Email");  
+	            e.printStackTrace();  
+	        }  
+	          
+	        // enviar os dados para o email  
+	        Transport tr;  
+	        try {  
+	            tr = session.getTransport("smtp"); //define smtp para transporte  
+	             
+	            tr.connect(mailSMTPServer, "scoreufc@gmail.com", "scoreufcweb");  
+	            msg.saveChanges(); // don't forget this  
+	            //envio da mensagem  
+	            tr.sendMessage(msg, msg.getAllRecipients());  
+	            tr.close();  
+	        } catch (Exception e) {  
+	           
+	            System.out.println("Erro ao enviar Email");  
+	            e.printStackTrace();  
+	        }  
+	  
+	    }  
+	}  
+	  
+	
+	class Autenticacao extends Authenticator {  
+	    public String username = null;  
+	    public String password = null;  
+	  
+	  
+	    public Autenticacao(String user, String pwd) {  
+	        username = user;  
+	        password = pwd;  
+	    }  
+	  
+	    protected PasswordAuthentication getPasswordAuthentication() {  
+	        return new PasswordAuthentication (username,password);  
+	    }  
+	    
+}
+=====================================================================
+Found a 81 line (308 tokens) duplication in the following files: 
+Starting at line 14 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/ControllerRecursos.java
+Starting at line 14 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/ControllerRecursos.java
+
+@ManagedBean(name="recursoController")
+@SessionScoped
+public class ControllerRecursos {
+
+	private RecursoDAO recursoDAO = new RecursoDAO();
+	private Recurso recurso = new Recurso();
+	private List<Recurso> listaDeRecursos = new ArrayList<Recurso>();
+	private List<Recurso> listaDeRecursosDisponiveis = new ArrayList<Recurso>();
+	
+	public String adicionar(){
+		if(recursoDAO.insert(recurso)){
+			recurso = new Recurso();
+			addMessage("Recurso Adicionado");
+			
+		}else{
+			addMessage("Recurso Nao Adicionado");
+		}
+		
+		return "/Tecnico/listarRecurso.xhtml";
+	}
+	
+	public void remover(){
+		
+		if(recursoDAO.delete(recurso)){
+			addMessage("Recurso Removido");
+		}
+		else{
+			addMessage("Recurso Nao Removido");
+		}
+	}
+	
+	public String editar(){
+		if(recursoDAO.update(recurso)){
+			addMessage("Recurso Editado");
+		}
+		else{
+			addMessage("Recurso Nao Editado");
+		}
+		return "/Tecnico/listarRecurso.xhtml";
+	}
+	
+	//Getters & Setters
+	public RecursoDAO getRecursoDAO() {
+		return recursoDAO;
+	}
+
+	public void setRecursoDAO(RecursoDAO recursoDAO) {
+		this.recursoDAO = recursoDAO;
+	}
+
+	public Recurso getRecurso() {
+		return recurso;
+	}
+
+	public void setRecurso(Recurso recurso) {
+		this.recurso = recurso;
+	}
+
+	public List<Recurso> getListaDeRecursos() {
+		listaDeRecursos = recursoDAO.select();
+		return listaDeRecursos;
+	}
+
+	public void setListaDeRecursos(List<Recurso> listaDeRecursos) {
+		this.listaDeRecursos = listaDeRecursos;
+	}
+
+	public List<Recurso> getListaDeRecursosDisponiveis() {
+		listaDeRecursosDisponiveis = recursoDAO.selectDisponibilidade();
+		return listaDeRecursosDisponiveis;
+	}
+
+	public void setListaDeRecursosDisponiveis(List<Recurso> listaDeRecursosDisponiveis) {
+		this.listaDeRecursosDisponiveis = listaDeRecursosDisponiveis;
+	}
+	
+	public void addMessage(String summary) {  
+        FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, summary,  null);  
+        FacesContext.getCurrentInstance().addMessage(null, message);  
+    } 
+}
+=====================================================================
+Found a 80 line (292 tokens) duplication in the following files: 
+Starting at line 14 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Tecnico.java
+Starting at line 14 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Tecnico.java
+
+@SuppressWarnings("serial")
+@Entity
+public class Tecnico implements Serializable
+{
+	@Id
+	@GeneratedValue
+	private long id;
+	
+	@Column(unique=false)
+	private String nome;
+	
+	@Column(unique=true)
+	private String login;
+	
+	@Column(unique=false)
+	private String senha;
+	
+	@Column(unique=true)
+	private String email;
+	
+	@Column(unique=false)
+	private String funcao;
+	
+	@Column(unique=true)
+	private String codigoAdministrador;
+	
+	@OneToMany(mappedBy="tecnico")
+	private List<Reserva> reservas = new ArrayList<Reserva>();
+	
+	
+	public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
+	public String getNome() {
+		return nome;
+	}
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+	public String getLogin() {
+		return login;
+	}
+	public void setLogin(String login) {
+		this.login = login;
+	}
+	public String getSenha() {
+		return senha;
+	}
+	public void setSenha(String senha) {
+		this.senha = senha;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getFuncao() {
+		return funcao;
+	}
+	public void setFuncao(String funcao) {
+		this.funcao = funcao;
+	}
+	public String getCodigoAdministrador() {
+		return codigoAdministrador;
+	}
+	public void setCodigoAdministrador(String codigoAdministrador) {
+		this.codigoAdministrador = codigoAdministrador;
+	}
+	public List<Reserva> getReservas() {
+		return reservas;
+	}
+	public void setReservas(List<Reserva> reservas) {
+		this.reservas = reservas;
+	}
+	
+}
+=====================================================================
+Found a 75 line (245 tokens) duplication in the following files: 
+Starting at line 16 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/UsuarioController.java
+Starting at line 16 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/UsuarioController.java
+
+@ManagedBean(name="usuarioController")
+public class UsuarioController {
+
+	private Usuario usuario = new Usuario();
+	private List<Usuario> usuarios = new ArrayList<Usuario>();
+	private UsuarioDAO usuarioDAO = new UsuarioDAO();
+	
+	public String cadastrar(){
+		
+		if(usuarioDAO.insert(usuario)){
+			  addMessage("Dados salvos"); 
+		}else{
+			addMessage("Dados não salvos"); 
+		}
+	
+	    usuario = new Usuario();
+	    
+	    return "/Tecnico/usuarios.xhtml";
+		
+	}
+	
+	public void remover(){
+		
+		if(usuarioDAO.delete(usuario)){
+			
+			addMessage("Usuario removido");
+		}else{
+		
+			addMessage("Usuario não pode ser removido");
+		}
+		
+		 
+	}
+	
+	public String atualizar(){
+		
+		if(usuarioDAO.update(usuario)){
+			addMessage("Dados Atualizados"); 
+			//
+		}else{
+			addMessage("Dados Não Atualizados"); 
+		}
+		
+		usuario = new Usuario();
+		
+		 return "/Tecnico/usuarios.xhtml";
+	}
+		
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+	public UsuarioDAO getUsuarioDAO() {
+		return usuarioDAO;
+	}
+
+	public void setUsuarioDAO(UsuarioDAO usuarioDAO) {
+		this.usuarioDAO = usuarioDAO;
+	}
+	
+	public List<Usuario> getUsuarios() {
+		usuarios = usuarioDAO.selectAll();
+		return usuarios;
+	}
+
+	public void addMessage(String summary) {  
+	        FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, summary,  null);  
+	        FacesContext.getCurrentInstance().addMessage(null, message);  
+	    }
+	
+}
+=====================================================================
+Found a 94 line (240 tokens) duplication in the following files: 
+Starting at line 13 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Reserva.java
+Starting at line 13 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Reserva.java
+
+@SuppressWarnings("serial")
+@Entity
+public class Reserva implements Serializable{
+
+	@Id
+	@GeneratedValue
+	private Long id;
+	
+	@Column
+	private Date data;
+	
+	@Column
+	private Date horarioInicio;
+	
+	@Column
+	private Date horarioFim;
+	
+	@Column
+	private String status;
+	
+	@ManyToOne
+	private Recurso recurso;
+	
+	@ManyToOne
+	private Tecnico tecnico;
+	
+	@ManyToOne
+	private Usuario usuario;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+	public Recurso getRecurso() {
+		return recurso;
+	}
+
+	public void setRecurso(Recurso recurso) {
+		this.recurso = recurso;
+	}
+
+	public Tecnico getTecnico() {
+		return tecnico;
+	}
+
+	public void setTecnico(Tecnico tecnico) {
+		this.tecnico = tecnico;
+	}
+
+	public Date getData() {
+		return data;
+	}
+
+	public void setData(Date data) {
+		this.data = data;
+	}
+
+	public Date getHorarioInicio() {
+		return horarioInicio;
+	}
+
+	public void setHorarioInicio(Date horarioInicio) {
+		this.horarioInicio = horarioInicio;
+	}
+
+	public Date getHorarioFim() {
+		return horarioFim;
+	}
+
+	public void setHorarioFim(Date horarioFim) {
+		this.horarioFim = horarioFim;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+}
+=====================================================================
+Found a 59 line (226 tokens) duplication in the following files: 
+Starting at line 13 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Usuario.java
+Starting at line 13 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Usuario.java
+
+@SuppressWarnings("serial")
+@Entity
+public class Usuario implements Serializable {
+
+	@Id
+	@GeneratedValue
+	private long id;
+	
+	@Column(unique=false)
+	private String nome;
+	@Column(unique=true)
+	private String login;
+	@Column(unique=false)
+	private String senha;
+	@Column(unique=true)
+	private String email;
+	
+	@OneToMany(mappedBy="usuario")
+	private List<Reserva> reserva = new ArrayList<Reserva>();
+	
+	public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
+	public String getNome() {
+		return nome;
+	}
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+	public String getLogin() {
+		return login;
+	}
+	public void setLogin(String login) {
+		this.login = login;
+	}
+	public String getSenha() {
+		return senha;
+	}
+	public void setSenha(String senha) {
+		this.senha = senha;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public List<Reserva> getReserva() {
+		return reserva;
+	}
+	public void setReserva(List<Reserva> reserva) {
+		this.reserva = reserva;
+	}
+	
+	
+}
+=====================================================================
+Found a 47 line (213 tokens) duplication in the following files: 
+Starting at line 16 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/persistencia/CriarTabelas.java
+Starting at line 16 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/persistencia/CriarTabelas.java
+
+public class CriarTabelas 
+{
+	public static void exportarEsquema(List<Class<? extends Object>> classes)
+	{
+		AnnotationConfiguration annotConfig = adicionaClassesConfiguracao(classes);
+		
+		SchemaExport se = new SchemaExport(annotConfig);
+		se.create(true, true);
+	}
+
+	private static AnnotationConfiguration adicionaClassesConfiguracao(List<Class<? extends Object>> classes) 
+	{
+		AnnotationConfiguration annotConfig = new AnnotationConfiguration();
+		
+		for (Class<?> classe : classes) {
+			annotConfig.addAnnotatedClass(classe);
+	}
+	return annotConfig;
+}
+
+	public static Session prepararSessao() 
+	{
+		AnnotationConfiguration annotConfig = adicionaClassesConfiguracao(initialize());
+		SessionFactory sf = annotConfig.buildSessionFactory();
+		Session session = sf.openSession();
+		return session;
+	}
+
+	public static void reiniciaBanco() 
+	{
+		exportarEsquema(initialize());
+	}
+
+	 private static List<Class<? extends Object>> initialize()
+	{
+		List<Class<? extends Object>> classes = new ArrayList<Class<? extends Object>>();
+		
+		//classes.add(Usuario.class);
+		classes.add(Usuario.class);
+		classes.add(Recurso.class);
+		classes.add(Reserva.class);
+		classes.add(Tecnico.class);
+		
+		return classes;
+	}
+
+}
+=====================================================================
+Found a 58 line (205 tokens) duplication in the following files: 
+Starting at line 14 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/TecnicoController.java
+Starting at line 14 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/TecnicoController.java
+
+@ManagedBean(name="tecnicoController")
+@SessionScoped
+public class TecnicoController
+{
+	private Tecnico tecnico = new Tecnico();
+	private List<Tecnico> tecnicos = new ArrayList<Tecnico>();
+	private TecnicoDAO tecnicoDao = new TecnicoDAO();
+	
+	public String salvar()
+	{
+		if(tecnicoDao.insert(tecnico)){
+			tecnico = new Tecnico();
+			addMessage("Tecnico Adicionado");
+		}
+		else{
+			addMessage("Tecnico Nao Adicionado");
+		}
+		
+		return "/Tecnico/listagemTecnico.xhtml";
+	}
+	
+	public String atualizar()
+	{
+		tecnicoDao.update(tecnico);
+		return "/Tecnico/listagemTecnico.xhtml";
+	}
+	
+	public String deletar()
+	{
+		tecnicoDao.delete(tecnico);
+		return "/Tecnico/listagemTecnico.xhtml";
+	}
+	
+	public void setTecnico(Tecnico tecnico) 
+	{
+		this.tecnico = tecnico;
+	}
+	public Tecnico getTecnico() 
+	{
+		return tecnico;
+	}
+
+	public void setTecnicos(List<Tecnico> tecnicos) {
+		this.tecnicos = tecnicos;
+	}
+
+	public List<Tecnico> getTecnicos() 
+	{
+		tecnicos = tecnicoDao.selectAll();
+		return tecnicos;
+	}
+	
+	public void addMessage(String summary) {  
+        FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, summary,  null);  
+        FacesContext.getCurrentInstance().addMessage(null, message);  
+    } 
+
+}
+=====================================================================
+Found a 65 line (193 tokens) duplication in the following files: 
+Starting at line 12 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Recurso.java
+Starting at line 12 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Recurso.java
+
+@Entity
+public class Recurso {
+	
+	@Id
+	@GeneratedValue
+	private long idRecurso;
+	
+	@Column
+	private String nome;
+	private int numeroRecurso;
+	private boolean disponibilidade;
+	private int quantidade;
+	
+	@OneToMany(mappedBy="recurso")
+	private List<Reserva> reserva = new ArrayList<Reserva>();
+	
+	public long getIdRecurso() {
+		return idRecurso;
+	}
+
+	public void setIdRecurso(long idRecurso) {
+		this.idRecurso = idRecurso;
+	}
+	
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+
+	public int getNumeroRecurso() {
+		return numeroRecurso;
+	}
+
+	public void setNumeroRecurso(int numeroRecurso) {
+		this.numeroRecurso = numeroRecurso;
+	}
+
+	public boolean isDisponibilidade() {
+		return disponibilidade;
+	}
+
+	public void setDisponibilidade(boolean disponibilidade) {
+		this.disponibilidade = disponibilidade;
+	}
+
+	public int getQuantidade() {
+		return quantidade;
+	}
+
+	public void setQuantidade(int quantidade) {
+		this.quantidade = quantidade;
+	}
+
+	public List<Reserva> getReserva() {
+		return reserva;
+	}
+
+	public void setReserva(List<Reserva> reserva) {
+		this.reserva = reserva;
+	}
+
+}
+=====================================================================
+Found a 34 line (124 tokens) duplication in the following files: 
+Starting at line 41 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Tecnico.java
+Starting at line 31 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Usuario.java
+Starting at line 41 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Tecnico.java
+Starting at line 31 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Usuario.java
+
+	private List<Reserva> reservas = new ArrayList<Reserva>();
+	
+	
+	public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
+	public String getNome() {
+		return nome;
+	}
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+	public String getLogin() {
+		return login;
+	}
+	public void setLogin(String login) {
+		this.login = login;
+	}
+	public String getSenha() {
+		return senha;
+	}
+	public void setSenha(String senha) {
+		this.senha = senha;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getFuncao() {
+=====================================================================
+Found a 23 line (96 tokens) duplication in the following files: 
+Starting at line 8 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/IdiomaController.java
+Starting at line 8 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/IdiomaController.java
+
+@ManagedBean(name="idiomaController")
+@SessionScoped
+public class IdiomaController {
+	
+	private Locale correnteLocale = new Locale("pt", "BR");
+	
+	public void setLocalePortugues(){
+		correnteLocale = new Locale("pt", "BR");
+	}
+	public void setLocaleIngles(){
+		correnteLocale = new Locale("en", "ES");
+	}
+	public void setLocaleEspanhol(){
+		correnteLocale = new Locale("es", "SN");
+	}
+	public Locale getCorrenteLocale() {
+		return correnteLocale;
+	}
+	public void setCorrenteLocale(Locale correnteLocale) {
+		this.correnteLocale = correnteLocale;
+	}
+
+}
+=====================================================================
+Found a 79 line (59 tokens) duplication in the following files: 
+Starting at line 18 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/persistencia/ClassePrincipal.java
+Starting at line 24 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/persistencia/ClassePrincipal.java
+
+		CriarTabelas.reiniciaBanco();
+		
+//		UsuarioDAO dao = new UsuarioDAO();
+//		
+//		Usuario u = new Usuario();
+//		u.setEmail("leticia@gmail.com");
+//		u.setLogin("leti");
+//		u.setNome("Leticia");
+//		u.setSenha("123");
+//		
+//		dao.insert(u);
+//		ReservaDAO reservaDAO = new ReservaDAO();
+//		
+//		
+//		Reserva r =  reservaDAO.buscarReservaPorUsuario(u);
+//		System.out.println(r.getUsuario().getNome());
+		
+//		//Cadastrar um usuario
+//		UsuarioDAO dao = new UsuarioDAO();
+//		
+//		Usuario u = new Usuario();
+//		u.setEmail("let@gmail.com");
+//		u.setLogin("let");
+//		u.setNome("Leticia");
+//		u.setSenha("123");
+//		
+//		dao.insert(u);
+		
+		//Cadastrar Tecnico
+		TecnicoDAO daoTecnico = new TecnicoDAO();
+		
+		Tecnico tecnico = new Tecnico();
+		tecnico.setCodigoAdministrador("12345");
+		tecnico.setEmail("venicios@ufc.br");
+		tecnico.setFuncao("Secretario");
+		tecnico.setLogin("venicio");
+		tecnico.setNome("Venicio");
+		tecnico.setSenha("123");
+		
+		daoTecnico.insert(tecnico);
+		
+//		Usuario u = dao.selectlogin("su", "098");
+//		
+//		ReservaDAO daoR = new ReservaDAO();
+//		Reserva r = daoR.buscarReservaPor(new Long(5));
+//		
+//		daoR.associarUsuarioAReserva(r.getId(), u);
+
+//		Tecnico tecnico = new Tecnico();
+
+//		tecnico.setCodigoAdministrador("13");
+//		tecnico.setEmail("suele@gmail.com");
+//		tecnico.setFuncao("secretario");
+//		tecnico.setLogin("suele");
+//		tecnico.setNome("suelhy");
+//		tecnico.setSenha("123");
+//		usuario.setEmail("leticia");
+//		usuario.setLogin("leticia");
+//		usuario.setNome("Leticia");
+//		usuario.setSenha("123455");
+		
+		
+//		TecnicoDAO dao = new TecnicoDAO();
+//    	tecnico = dao.select("12");
+////		dao.cadastrarNovoTecnico(tecnico);
+//    	tecnico.setSenha("12");
+//		dao.update(tecnico);
+		//dao.removerTecnico(tecnico);
+		
+//		List<Tecnico> tecnicos = dao.selectAll();
+//		
+//		for (Tecnico t : tecnicos)
+//		{
+//			System.out.println(t.getNome());
+//		}
+			
+		
+}
+}
+=====================================================================
+Found a 15 line (54 tokens) duplication in the following files: 
+Starting at line 23 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 27 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 23 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 27 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+
+			sessao.save(recurso);
+			trasaction.commit();
+			inserir = true;
+			
+		} catch (HibernateException e) {
+			System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+		}
+		finally{
+			sessao.close();
+			return inserir;
+		}
+	}
+
+	public boolean delete(Recurso recurso) {
+=====================================================================
+Found a 19 line (51 tokens) duplication in the following files: 
+Starting at line 16 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Tecnico.java
+Starting at line 15 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Usuario.java
+Starting at line 16 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Tecnico.java
+Starting at line 15 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Usuario.java
+
+public class Tecnico implements Serializable
+{
+	@Id
+	@GeneratedValue
+	private long id;
+	
+	@Column(unique=false)
+	private String nome;
+	
+	@Column(unique=true)
+	private String login;
+	
+	@Column(unique=false)
+	private String senha;
+	
+	@Column(unique=true)
+	private String email;
+	
+	@Column(unique=false)
+=====================================================================
+Found a 21 line (49 tokens) duplication in the following files: 
+Starting at line 99 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/LoginController.java
+Starting at line 55 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Tecnico.java
+Starting at line 44 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Usuario.java
+Starting at line 99 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/LoginController.java
+Starting at line 55 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Tecnico.java
+Starting at line 44 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Usuario.java
+
+	}
+
+
+	public String getLogin() {
+		return login;
+	}
+
+	public void setLogin(String login) {
+		this.login = login;
+	}
+
+	public String getSenha() {
+		return senha;
+	}
+
+	public void setSenha(String senha) {
+		this.senha = senha;
+	}
+
+
+	public String getTipo() {
+=====================================================================
+Found a 9 line (44 tokens) duplication in the following files: 
+Starting at line 115 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 76 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 115 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 76 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+
+	    	tecnico = (Tecnico) query.uniqueResult();
+	    }
+	    catch(HibernateException e){
+	    	System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+	    }
+	    finally{
+	    	session.close();
+	    	return tecnico;
+=====================================================================
+Found a 10 line (41 tokens) duplication in the following files: 
+Starting at line 99 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 24 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 99 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 24 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+
+					sessao.save(reserva);
+					
+					trasaction.commit();
+					cadastro = true;
+					
+				}catch (HibernateException e) {
+					System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+							+ e.toString());
+				}
+				finally{
+=====================================================================
+Found a 9 line (40 tokens) duplication in the following files: 
+Starting at line 25 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 102 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 31 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 25 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 102 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 31 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+
+			inserir = true;
+			
+		} catch (HibernateException e) {
+			System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+		}
+		finally{
+			sessao.close();
+			return inserir;
+=====================================================================
+Found a 7 line (40 tokens) duplication in the following files: 
+Starting at line 33 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 51 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 33 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 51 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+
+	public ArrayList<Reserva> listarReservasAprovadas(){
+	
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction transaction = sessao.beginTransaction();
+		
+		Criteria criteria = sessao.createCriteria(Reserva.class);
+		criteria.add(Restrictions.eq("status", "Aprovada"));
+=====================================================================
+Found a 7 line (40 tokens) duplication in the following files: 
+Starting at line 69 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 180 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 69 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 180 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+
+		boolean deletar = false;
+		
+		Session sessao = CriarTabelas.prepararSessao();
+		
+		try{
+			Transaction trasaction = sessao.beginTransaction();
+			Reserva reservaCarregada = (Reserva) sessao.load(Reserva.class, reserva.getId());
+=====================================================================
+Found a 9 line (40 tokens) duplication in the following files: 
+Starting at line 115 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 76 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 98 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 115 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 76 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 98 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+
+	    	tecnico = (Tecnico) query.uniqueResult();
+	    }
+	    catch(HibernateException e){
+	    	System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+	    }
+	    finally{
+	    	session.close();
+	    	return tecnico;
+=====================================================================
+Found a 9 line (40 tokens) duplication in the following files: 
+Starting at line 26 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 50 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 140 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 26 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 50 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 140 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+
+			cadastro = true;
+		}
+		catch(HibernateException e){
+			System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+		}
+		finally{
+			session.close();
+			return cadastro;
+=====================================================================
+Found a 5 line (39 tokens) duplication in the following files: 
+Starting at line 32 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/ControladorDeReservas.java
+Starting at line 138 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/ControladorDeReservas.java
+Starting at line 32 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/ControladorDeReservas.java
+Starting at line 138 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/ControladorDeReservas.java
+
+	public String reservar(){
+		
+		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();  
+		HttpSession session = (HttpSession) externalContext.getSession(true);  
+		LoginController loginController = (LoginController)session.getAttribute("loginController"); 
+=====================================================================
+Found a 7 line (38 tokens) duplication in the following files: 
+Starting at line 27 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 104 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 130 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 33 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 27 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 104 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 130 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 33 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+
+		} catch (HibernateException e) {
+			System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+		}
+		finally{
+			sessao.close();
+			return inserir;
+=====================================================================
+Found a 8 line (38 tokens) duplication in the following files: 
+Starting at line 116 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 27 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 51 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 77 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 99 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 141 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 116 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 27 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 51 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 77 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 99 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 141 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+
+	    }
+	    catch(HibernateException e){
+	    	System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+	    }
+	    finally{
+	    	session.close();
+	    	return tecnico;
+=====================================================================
+Found a 6 line (37 tokens) duplication in the following files: 
+Starting at line 88 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 118 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 88 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 118 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+
+	public Recurso selectUnicoRecurso(int numeroRecurso){
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Recurso.class);
+		criteria.add(Restrictions.eq("numeroRecurso", numeroRecurso));
+=====================================================================
+Found a 6 line (37 tokens) duplication in the following files: 
+Starting at line 129 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 98 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 129 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 98 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+
+		trasaction.commit();
+		}catch (HibernateException e) {
+			System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+				+ e.toString());
+		}
+			finally{
+=====================================================================
+Found a 6 line (37 tokens) duplication in the following files: 
+Starting at line 140 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 155 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 140 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 155 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+
+	public Reserva buscarReservaPor(Long id){
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Reserva.class);
+		criteria.add(Restrictions.eq("id", id));
+=====================================================================
+Found a 7 line (37 tokens) duplication in the following files: 
+Starting at line 88 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/ControllerRecursos.java
+Starting at line 64 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/TecnicoController.java
+Starting at line 83 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/UsuarioController.java
+Starting at line 88 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/ControllerRecursos.java
+Starting at line 64 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/TecnicoController.java
+Starting at line 83 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/UsuarioController.java
+
+	}
+	
+	public void addMessage(String summary) {  
+        FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, summary,  null);  
+        FacesContext.getCurrentInstance().addMessage(null, message);  
+    } 
+}
+=====================================================================
+Found a 6 line (36 tokens) duplication in the following files: 
+Starting at line 131 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/ControladorDeReservas.java
+Starting at line 88 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/ControllerRecursos.java
+Starting at line 64 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/TecnicoController.java
+Starting at line 83 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/UsuarioController.java
+Starting at line 131 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/ControladorDeReservas.java
+Starting at line 88 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/ControllerRecursos.java
+Starting at line 64 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/TecnicoController.java
+Starting at line 83 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/UsuarioController.java
+
+	}
+	
+	public void addMessage(String summary) {  
+        FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, summary,  null);  
+        FacesContext.getCurrentInstance().addMessage(null, message);  
+    }
+=====================================================================
+Found a 7 line (34 tokens) duplication in the following files: 
+Starting at line 25 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 102 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 31 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 26 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 50 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 140 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 25 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 102 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 31 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 26 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 50 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 140 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+
+			inserir = true;
+			
+		} catch (HibernateException e) {
+			System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+		}
+		finally{
+=====================================================================
+Found a 7 line (34 tokens) duplication in the following files: 
+Starting at line 69 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 115 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 180 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 69 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 115 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 180 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+
+		boolean deletar = false;
+		
+		Session sessao = CriarTabelas.prepararSessao();
+		
+		try{
+			Transaction trasaction = sessao.beginTransaction();
+			Reserva reservaCarregada = (Reserva) sessao.load(Reserva.class, reserva.getId());
+=====================================================================
+Found a 6 line (34 tokens) duplication in the following files: 
+Starting at line 129 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 115 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 76 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 129 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 115 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 76 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+
+		trasaction.commit();
+		}catch (HibernateException e) {
+			System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+				+ e.toString());
+		}
+			finally{
+=====================================================================
+Found a 13 line (33 tokens) duplication in the following files: 
+Starting at line 39 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 56 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 39 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 56 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+
+		criteria.add(Restrictions.eq("status", "Aprovada"));
+		
+		ArrayList<Reserva> reservas = (ArrayList<Reserva>) criteria.list();
+		
+		transaction.commit();
+		sessao.close();
+		
+		return reservas;
+	}
+	
+	
+	
+	public ArrayList<Reserva> listarReservasNaoAprovadas() {
+=====================================================================
+Found a 5 line (32 tokens) duplication in the following files: 
+Starting at line 27 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 104 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 33 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 116 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 77 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 99 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 27 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 104 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 33 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 116 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 77 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 99 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+
+		} catch (HibernateException e) {
+			System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+					+ e.toString());
+		}
+		finally{
+=====================================================================
+Found a 11 line (32 tokens) duplication in the following files: 
+Starting at line 108 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 123 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 108 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 123 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+
+		Criteria criteria = sessao.createCriteria(Recurso.class);
+		ArrayList<Recurso> recursos = (ArrayList<Recurso>) criteria.list();
+
+		trasaction.commit();
+		
+		sessao.close();
+		
+		return recursos;
+	}
+	
+	public List<Recurso> selectDisponibilidade(){
+=====================================================================
+Found a 5 line (32 tokens) duplication in the following files: 
+Starting at line 130 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 27 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 51 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 141 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 130 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 27 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 51 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+Starting at line 141 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/UsuarioDAO.java
+
+		}catch (HibernateException e) {
+			System.out.println("Excecao Hibernate: " + e.getMessage() + " :: "
+				+ e.toString());
+		}
+			finally{
+=====================================================================
+Found a 11 line (31 tokens) duplication in the following files: 
+Starting at line 66 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Recurso.java
+Starting at line 62 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Usuario.java
+Starting at line 66 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Recurso.java
+Starting at line 62 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Usuario.java
+
+	}
+
+	public List<Reserva> getReserva() {
+		return reserva;
+	}
+
+	public void setReserva(List<Reserva> reserva) {
+		this.reserva = reserva;
+	}
+
+}
+=====================================================================
+Found a 16 line (30 tokens) duplication in the following files: 
+Starting at line 47 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 77 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 47 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 77 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+
+			sessao.delete(recursoCarregado);
+			
+			trasaction.commit();
+			deletar = true;
+		}catch (HibernateException e) {
+			
+		}
+		finally{
+
+			sessao.close();
+			return deletar;
+		}
+		
+	}
+
+	public boolean update(Recurso novoRecurso) {
+=====================================================================
+Found a 5 line (30 tokens) duplication in the following files: 
+Starting at line 104 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 118 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 104 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 118 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+
+	public List<Recurso> select() {
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Recurso.class);
+=====================================================================
+Found a 16 line (29 tokens) duplication in the following files: 
+Starting at line 47 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 77 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 54 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 47 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 77 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 54 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+
+			sessao.delete(recursoCarregado);
+			
+			trasaction.commit();
+			deletar = true;
+		}catch (HibernateException e) {
+			
+		}
+		finally{
+
+			sessao.close();
+			return deletar;
+		}
+		
+	}
+
+	public boolean update(Recurso novoRecurso) {
+=====================================================================
+Found a 5 line (29 tokens) duplication in the following files: 
+Starting at line 88 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 104 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 88 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 104 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+
+	public Recurso selectUnicoRecurso(int numeroRecurso){
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Recurso.class);
+=====================================================================
+Found a 6 line (29 tokens) duplication in the following files: 
+Starting at line 19 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 140 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 155 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 19 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 140 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 155 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+
+	public ArrayList<Reserva> listarTodas(){
+		
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Reserva.class);
+=====================================================================
+Found a 5 line (29 tokens) duplication in the following files: 
+Starting at line 70 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 86 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 70 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 86 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+
+	public  Tecnico select(String codigoAdministrador) {
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Tecnico.class);
+=====================================================================
+Found a 7 line (28 tokens) duplication in the following files: 
+Starting at line 17 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 17 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 17 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 17 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+
+	public boolean insert(Recurso recurso){
+		boolean inserir = false;
+		Session sessao = CriarTabelas.prepararSessao();
+		
+		try{
+			Transaction trasaction = sessao.beginTransaction();
+			sessao.save(recurso);
+=====================================================================
+Found a 14 line (28 tokens) duplication in the following files: 
+Starting at line 73 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 139 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 73 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 139 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+
+		sessao.update(novoRecursoCarregado);
+		
+		trasaction.commit();
+		atualizar = true;
+		
+		}catch (HibernateException e) {
+			
+		}
+		finally{
+			sessao.close();
+			return atualizar;
+		}
+		
+	}
+=====================================================================
+Found a 3 line (28 tokens) duplication in the following files: 
+Starting at line 56 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/LoginController.java
+Starting at line 71 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/LoginController.java
+Starting at line 56 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/LoginController.java
+Starting at line 71 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/LoginController.java
+
+			}else{
+				msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Login/Senha Error", "Invalid credentials");
+				FacesContext.getCurrentInstance().addMessage(null, msg); 
+=====================================================================
+Found a 5 line (26 tokens) duplication in the following files: 
+Starting at line 104 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 118 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 19 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 86 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 104 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 118 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 19 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 86 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+
+	public List<Recurso> select() {
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Recurso.class);
+=====================================================================
+Found a 5 line (25 tokens) duplication in the following files: 
+Starting at line 88 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 104 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 118 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 19 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 140 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 155 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 70 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 86 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 88 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 104 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 118 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/RecursoDAO.java
+Starting at line 19 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 140 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 155 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 70 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+Starting at line 86 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/TecnicoDAO.java
+
+	public Recurso selectUnicoRecurso(int numeroRecurso){
+		Session sessao = CriarTabelas.prepararSessao();
+		Transaction trasaction = sessao.beginTransaction();
+			
+		Criteria criteria = sessao.createCriteria(Recurso.class);
+=====================================================================
+Found a 4 line (25 tokens) duplication in the following files: 
+Starting at line 36 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 53 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 142 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 158 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 36 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 53 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 142 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+Starting at line 158 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/DAOs/ReservaDAO.java
+
+		Transaction transaction = sessao.beginTransaction();
+		
+		Criteria criteria = sessao.createCriteria(Reserva.class);
+		criteria.add(Restrictions.eq("status", "Aprovada"));
+=====================================================================
+Found a 11 line (25 tokens) duplication in the following files: 
+Starting at line 62 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/ControllerRecursos.java
+Starting at line 56 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Reserva.java
+Starting at line 62 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/ControllerRecursos.java
+Starting at line 56 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Reserva.java
+
+	}
+
+	public Recurso getRecurso() {
+		return recurso;
+	}
+
+	public void setRecurso(Recurso recurso) {
+		this.recurso = recurso;
+	}
+
+	public List<Recurso> getListaDeRecursos() {
+=====================================================================
+Found a 14 line (25 tokens) duplication in the following files: 
+Starting at line 89 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/LoginController.java
+Starting at line 62 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/controladores/UsuarioController.java
+Starting at line 48 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Reserva.java
+Starting at line 89 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/LoginController.java
+Starting at line 62 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/controladores/UsuarioController.java
+Starting at line 48 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Reserva.java
+
+	}
+
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+
+	public String getLogin() {
+=====================================================================
+Found a 11 line (25 tokens) duplication in the following files: 
+Starting at line 34 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Recurso.java
+Starting at line 49 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Tecnico.java
+Starting at line 38 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/modelos/Usuario.java
+Starting at line 34 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Recurso.java
+Starting at line 49 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Tecnico.java
+Starting at line 38 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/modelos/Usuario.java
+
+	}
+	
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+
+	public int getNumeroRecurso() {
+=====================================================================
+Found a 7 line (25 tokens) duplication in the following files: 
+Starting at line 12 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/Score_Versao_1_0/src/br/ufc/quixada/es/persistencia/ClassePrincipal.java
+Starting at line 8 of /home/italobandeira/workspace/Score_Versao_1_0_MVN/src/br/ufc/quixada/es/persistencia/ClassePrincipal.java
+
+public class ClassePrincipal {
+
+
+	public static void main(String[] args) {
+//		
+		CriarTabelas.prepararSessao();
+		CriarTabelas.reiniciaBanco();
