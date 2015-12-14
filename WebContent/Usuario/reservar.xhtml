@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<ui:composition template="/Usuario/templateUsuario.xhtml">
+
+	<ui:define name="conteudo">
+		<p:messages/>
+		<h:form>	
+<!-- 		<h:inputHidden value="#{controladorReserva.reserva.usuario.id}"/> -->
+<!-- 		<h:inputHidden value="#{controladorReserva.reserva.recurso.idRecurso}"/> -->
+		
+		<h:panelGrid columns="2" cellpadding="10">
+		<p:outputLabel value="#{msg['usuario.nome']} *"/>
+			<p:inputText readonly="true" value="#{loginController.usuario.nome}" required="true" requiredMessage="#{msg['mensagem.nome']}" validatorMessage="#{msg['mensagem.nomeInvalido']}">
+				<f:validateRegex pattern="^[aA-zZ]+((\s[aA-zZ]+)+)?$"/>
+			</p:inputText>
+			
+			<h:outputText value="#{msg['recurso.nome']} *"/>
+			<p:inputText readonly="true" value="#{controladorReserva.reserva.recurso.nome}" required="true" requiredMessage="#{msg['mensagem.nome']}" validatorMessage="#{msg['mensagem.nomeInvalido']}">
+				<f:validateRegex pattern="^[aA-zZ]+((\s[aA-zZ]+)+)?$"/>
+			</p:inputText>
+			
+			<h:outputText value="#{msg['reserva.data']} *"/>
+				<p:calendar value="#{controladorReserva.reserva.data}" id="popupCal" /> 
+			
+			<h:outputText value="#{msg['reserva.horario.inicio']} *"/>
+				<p:calendar value="#{controladorReserva.reserva.horarioInicio}" pattern="HH:mm" timeOnly="true" />
+			
+			<h:outputText value="#{msg['reserva.horario.fim']} *"/>
+				<p:calendar value="#{controladorReserva.reserva.horarioFim}" pattern="HH:mm" timeOnly="true" />
+
+		</h:panelGrid>
+			<p:commandButton ajax="false" type="submit" value="#{msg['menu.cadastro.reserva']}" action="#{controladorReserva.reservar}"/>
+			<p:commandButton ajax="false" type="submit" value="#{msg['botao.voltar']}" action="/Usuario/homeUsuario.xhtml" immediate="true"/>
+		</h:form>
+		
+	</ui:define>
+</ui:composition>
+</html>
